@@ -12,16 +12,16 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- ✅ Use your installed Java version -->
+      
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
-        <!-- ✅ JavaFX version -->
+     
         <javafx.version>21.0.2</javafx.version>
     </properties>
 
     <dependencies>
-        <!-- ✅ JavaFX -->
+      
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -38,7 +38,7 @@
     <build>
         <plugins>
 
-            <!-- ✅ Compiler plugin -->
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -49,13 +49,13 @@
                 </configuration>
             </plugin>
 
-            <!-- ✅ JavaFX run plugin -->
+            
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <!-- ✅ IMPORTANT: set your main class -->
+                   
                     <mainClass>org.example.App</mainClass>
                 </configuration>
             </plugin>
