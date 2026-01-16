@@ -98,7 +98,7 @@ public class CalculatorController implements ActionListener {
             currentInput = "";
             resultFrozen = false;
 
-            updateDisplayPlain(); // ✅ black
+            updateDisplayPlain(); 
             return;
         }
 
