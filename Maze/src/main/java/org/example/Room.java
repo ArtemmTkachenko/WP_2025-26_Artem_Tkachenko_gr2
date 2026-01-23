@@ -6,8 +6,9 @@ import java.util.Map;
 public class Room {
 
     private final int x, y;
+
     private final Map<Direction, MapSite> sides = new EnumMap<>(Direction.class);
-    private Bomb bomb;
+    private Bomb bomb ;
 
     public Room(int x, int y) {
         this.x = x;
@@ -33,11 +34,6 @@ public class Room {
 
     public void removeBomb() {
         bomb = null;
-    }
-
-    public void onEnter(Actor actor) {
-        if (bomb != null)
-            bomb.onEnter(actor, this);
     }
 
     public Bomb bomb() {

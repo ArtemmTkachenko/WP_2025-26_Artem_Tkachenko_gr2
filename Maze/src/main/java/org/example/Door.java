@@ -27,8 +27,6 @@ public class Door implements MapSite {
     @Override
     public boolean enter(Actor actor) {
 
-
-
         if (open) {
             Room next = other(actor.getRoom());
             actor.setRoom(next);

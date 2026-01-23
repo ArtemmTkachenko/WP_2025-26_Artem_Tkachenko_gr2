@@ -1,7 +1,8 @@
 package org.example;
 
-public class Player implements Actor {
+public class Player implements Actor, Observer{
 
+    private static DamageBombDecorator damageDecorator;
     private Room room;
     private int hp = 100;
     private boolean stunned = false;
@@ -12,6 +13,7 @@ public class Player implements Actor {
     }
 
     public boolean tryMove(Direction d) {
+
         MapSite side = room.getSide(d);
         if (side == null) return false;
         return side.enter(this);
@@ -25,7 +27,16 @@ public class Player implements Actor {
     @Override
     public void damage(int amount) {
         hp -= amount;
-        if (hp < 0) hp = 0;
+
+        if (damageDecorator != null){
+            hp -= damageDecorator.getDamage();
+        }
+        if (hp < 0) {
+            hp = 0;
+          stunned = true;
+
+
+        }
     }
 
     public boolean isDead() {
@@ -58,4 +69,17 @@ public class Player implements Actor {
         this.room = room;
     }
 
+    @Override
+    public void update(String event) {
+
+
+        if (event.equals("Bomb exploded")) {
+            System.out.println("Bomb exploded");
+        }
+
+    }
+
+    public static void setDamageDecorator(DamageBombDecorator damageDecorator1) {
+        damageDecorator  = damageDecorator1;
+    }
 }

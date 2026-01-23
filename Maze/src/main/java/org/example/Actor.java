@@ -1,6 +1,6 @@
 package org.example;
 
-public interface Actor {
+public interface  Actor {
     void damage(int amount);
     Room getRoom();
     void setRoom(Room room);

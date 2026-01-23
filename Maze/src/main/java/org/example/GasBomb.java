@@ -4,7 +4,11 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GasBomb implements Bomb {
+    private static List<Observer> observers = new ArrayList<>();
 
     private static final int DAMAGE = 40;
     private static final int TIMER = 2;
@@ -36,20 +40,23 @@ public class GasBomb implements Bomb {
         timer.play();
     }
 
-    private void explode(Actor actor) {
+    public void explode(Actor actor) {
         exploded = true;
+
+
+        notifyObservers("Bomb exploded");
         explosion = new Explosion();
 
         App app = AppHolder.get();
         if (actor.getRoom() == bombRoom) {
             actor.damage(DAMAGE);
             if (app != null) {
-                app.showBombMessage("💥 YOU GOT HIT!", 2);
+                app.showBombMessage("YOU GOT HIT!", 2);
             }
             removeBombNow();
         } else {
             if (app != null) {
-                app.showBombMessage("💨 Bomb exploded, but you escaped.", 3);
+                app.showBombMessage("Bomb exploded, but you escaped.", 3);
             }
 
             Timeline delay = new Timeline(
@@ -85,4 +92,32 @@ public class GasBomb implements Bomb {
     public String renderSymbol() {
         return "";
     }
+
+
+
+
+    public  void addObserver(Observer observer) {
+
+        observers.add(observer);
+
+    }
+
+
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public int getDamage() {
+        return DAMAGE;
+    }
+
+    public void notifyObservers(String event) {
+
+        for (Observer observer : observers) {
+            observer.update(event);
+        }
+    }
+
+
 }

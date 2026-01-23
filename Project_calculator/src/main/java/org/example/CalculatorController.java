@@ -60,9 +60,6 @@ public class CalculatorController implements ActionListener {
         if (resultFrozen) return;
 
         if (currentInput.equals("0")) currentInput = "";
-
-        if (wouldBreakDecimalLimit()) return;
-
         currentInput += digit;
         updateDisplayPlain();
     }
@@ -82,12 +79,7 @@ public class CalculatorController implements ActionListener {
         }
     }
 
-    private boolean wouldBreakDecimalLimit() {
-        if (!currentInput.contains(".")) return false;
-        int dotIndex = currentInput.indexOf('.');
-        int decimals = currentInput.length() - dotIndex - 1;
-        return decimals >= 5;
-    }
+
 
     private void setOperator(char op) {
 
@@ -120,7 +112,8 @@ public class CalculatorController implements ActionListener {
 
             BigDecimal result = model.calculate(num1, num2, operator).stripTrailingZeros();
 
-            if (result.scale() > 5) {
+
+            if (result.toPlainString().replace(".", "").replace("-", "").length() >= 5) {
                 view.setDisplayPlainBlack("Error");
                 currentInput = "";
                 num1 = null;
@@ -130,7 +123,6 @@ public class CalculatorController implements ActionListener {
             }
 
             String s = result.toPlainString();
-
 
             if (s.contains(".")) {
                 String[] parts = s.split("\\.");
@@ -174,7 +166,9 @@ public class CalculatorController implements ActionListener {
         if (resultFrozen) return;
         if (currentInput.isEmpty()) return;
 
-        if (currentInput.startsWith("-")) currentInput = currentInput.substring(1);
+        if (currentInput.startsWith("-"))
+        {
+            currentInput = currentInput.substring(1);}
         else currentInput = "-" + currentInput;
 
         updateDisplayPlain();

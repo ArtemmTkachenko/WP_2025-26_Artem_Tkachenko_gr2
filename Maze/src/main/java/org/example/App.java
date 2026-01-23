@@ -16,21 +16,24 @@ import java.util.Random;
 public class App extends Application {
 
 
+    GameFacade game;
     private String bombMessage = null;
     private long bombMessageUntil = 0;
 
 
     private static final int CELL = 64;
     private static final int WALL = 4;
-    private static final int BOMB_COUNT = 20;
+
 
 
     private Maze maze;
     private Player player;
+    private GameInvoker invoker;
 
-    private Room startRoom;
     private Room finishRoom;
 
+
+    private boolean gameOver = false;
 
     private Image playerImg;
     private Image bombImg;
@@ -41,6 +44,10 @@ public class App extends Application {
 
 
         AppHolder.set(this);
+
+
+
+        invoker = new GameInvoker();
 
 
         playerImg = load("/img/player.png");
@@ -58,27 +65,41 @@ public class App extends Application {
         Scene scene = new Scene(new StackPane(canvas));
         scene.setOnKeyPressed(e -> {
 
-
-            if (e.getCode() == KeyCode.R &&
-                    (player.isDead() || player.isFinished())) {
+            if (e.getCode() == KeyCode.R && (gameOver || player.isDead() || player.isFinished())) {
                 restartGame();
+                gameOver = false;
                 return;
             }
 
 
-            if (player.isDead() || player.isStunned() || player.isFinished())
+            if (gameOver || player.isDead() || player.isFinished() || player.isStunned()) {
                 return;
+            }
 
-            if (e.getCode() == KeyCode.UP)    player.tryMove(Direction.NORTH);
-            if (e.getCode() == KeyCode.DOWN)  player.tryMove(Direction.SOUTH);
-            if (e.getCode() == KeyCode.LEFT)  player.tryMove(Direction.WEST);
-            if (e.getCode() == KeyCode.RIGHT) player.tryMove(Direction.EAST);
 
+            Command command = null;
+
+            if (e.getCode() == KeyCode.UP || e.getCode() == KeyCode.W)
+                command = new MoveUpCommand(player);
+            else if (e.getCode() == KeyCode.DOWN || e.getCode() == KeyCode.S)
+                command = new MoveDownCommand(player);
+            else if (e.getCode() == KeyCode.LEFT || e.getCode() == KeyCode.A)
+                command = new MoveLeftCommand(player);
+            else if (e.getCode() == KeyCode.RIGHT || e.getCode() == KeyCode.D)
+                command = new MoveRightCommand(player);
+
+            if (command != null) {
+                invoker.setCommand(command);
+                invoker.executeCommand();
+            }
 
             if (player.getRoom() == finishRoom) {
                 player.setFinished(true);
             }
         });
+
+
+
 
         new AnimationTimer() {
             @Override
@@ -94,24 +115,30 @@ public class App extends Application {
 
 
     private void restartGame() {
-        MazeFactory factory = new MazeFactory();
-        maze = new Maze(15, 11, factory);
 
-        MazeGenerator generator = new MazeGenerator(maze, factory);
-        generator.generate(0, 0);
 
-        startRoom  = maze.get(0, 0);
-        finishRoom = maze.get(maze.width() - 1, maze.height() - 1);
+        game = new GameFacade();
+        game.startNewGame();
 
-        placeBombs(factory);
-
-        player = new Player(startRoom);
+        maze = game.getMaze();
+        player = game.getPlayer();
+        finishRoom = game.getFinishRoom();
 
         bombMessage = null;
     }
 
 
     private void render(GraphicsContext g) {
+
+        if (!gameOver && player.getRoom() == finishRoom) {
+            player.setFinished(true);
+            gameOver = true;
+        }
+
+
+        if (!gameOver && player.isDead()) {
+            gameOver = true;
+        }
         g.setFill(Color.WHITE);
         g.fillRect(0, 0, 5000, 5000);
 
@@ -233,6 +260,7 @@ public class App extends Application {
 
     private void drawHUD(GraphicsContext g) {
 
+
         g.setFill(Color.BLACK);
         g.fillText(
                 "HP: " + player.hp(),
@@ -256,50 +284,32 @@ public class App extends Application {
 
 
         if (player.isDead()) {
+
             g.setFill(Color.RED);
             g.fillText(
-                    "☠ YOU DIED — Press R to restart",
+                    "YOU DIED — Press R to restart",
                     maze.width() * CELL / 2.0 - 160,
                     maze.height() * CELL / 2.0
             );
+
+
         }
 
 
         if (player.isFinished()) {
             g.setFill(Color.DARKGREEN);
             g.fillText(
-                    "🏁 YOU WON! Press R to restart",
+                    "YOU WON! Press R to restart",
                     maze.width() * CELL / 2.0 - 170,
                     maze.height() * CELL / 2.0
             );
+
         }
     }
-
 
     public void showBombMessage(String msg, int seconds) {
         bombMessage = msg;
         bombMessageUntil = System.currentTimeMillis() + seconds * 1000L;
-    }
-
-    private void placeBombs(MazeFactory factory) {
-        Random rng = new Random();
-        int placed = 0;
-
-        while (placed < BOMB_COUNT) {
-            int x = rng.nextInt(maze.width());
-            int y = rng.nextInt(maze.height());
-
-            Room r = maze.get(x, y);
-
-            if (Math.abs(x - startRoom.x()) <= 1 &&
-                    Math.abs(y - startRoom.y()) <= 1)
-                continue;
-
-            if (r == finishRoom || r.bomb() != null) continue;
-
-            r.placeBomb(factory.makeBomb());
-            placed++;
-        }
     }
 
     private Image load(String path) {

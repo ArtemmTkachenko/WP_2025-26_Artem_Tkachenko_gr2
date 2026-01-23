@@ -7,7 +7,7 @@ public class MazeGenerator {
     private final Maze maze;
     private final MazeFactory factory;
     private final boolean[][] visited;
-    private final Random rng = new Random();
+
 
     public MazeGenerator(Maze maze, MazeFactory factory) {
         this.maze = maze;
