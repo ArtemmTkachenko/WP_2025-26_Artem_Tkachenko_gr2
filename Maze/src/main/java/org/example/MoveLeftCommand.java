@@ -9,6 +9,6 @@ public class MoveLeftCommand implements Command {
 
     @Override
     public void execute() {
-        player.tryMove(Direction.WEST);  // Move the player left
+        player.tryMove(Direction.WEST);
     }
 }
